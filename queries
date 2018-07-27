@@ -1,0 +1,9 @@
+-- transform 1 column into definite number of columns
+with tt as (select rownum id from dual connect by level<100),
+     t1 as (select id l0,
+       lead(id,1) over(order by rownum) l1,
+       lead(id,2) over(order by rownum) l2,
+       lead(id,3) over(order by rownum) l3,
+       lead(id,4) over(order by rownum) l4 from tt)
+  select * from t1
+       where mod(l0-1, 5)=0
