@@ -1,4 +1,6 @@
+----------------------------------------------------
 -- transform 1 column into definite number of columns
+----------------------------------------------------
 
 with tt as (select rownum id from dual connect by level<100),
      t1 as (select id l0,
@@ -9,7 +11,9 @@ with tt as (select rownum id from dual connect by level<100),
   select * from t1
        where mod(l0-1, 5)=0;
 
+----------------------------------------------------
 -- pivoting using MAX and DECODE
+----------------------------------------------------
 with t as(select 1 id, 'T' bcode from dual
           union all
           select 1, 'A' from dual
@@ -28,3 +32,15 @@ select id,
        min(decode(bcode, 'A', bcode, null)) acode,
        min(decode(bcode, 'L', bcode, null)) lcode from t
    group by id;
+
+----------------------------------------------------
+-- pivoting using sys_connect_by_path
+----------------------------------------------------
+with tt as (select rownum+200 id from dual connect by level<=20)
+     select ltrim(max(sys_connect_by_path(id,', ')),', ')
+       from
+         (select id, row_number() over(order by id) rn from tt) t
+      start with t.rn=1
+      connect by rn = prior rn+1;
+
+
